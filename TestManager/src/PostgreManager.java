@@ -46,7 +46,7 @@ public class PostgreManager {
 		}
 	}
     
-    public ArrayList<ArrayList<Object>> runArrayQuery(String query) {
+    public ArrayList<ArrayList<Object>> runQuery(String query) {
     	ArrayList<ArrayList<Object>> list = new ArrayList<ArrayList<Object>>();
     	
 		try (Statement stmt = conn.createStatement();)

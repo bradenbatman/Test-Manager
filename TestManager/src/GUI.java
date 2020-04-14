@@ -174,7 +174,7 @@ public class GUI {
 
         addHeader("Edit Question");
 
-        ArrayList<ArrayList<Object>> questions = manage.runArrayQuery("select * from question");
+        ArrayList<ArrayList<Object>> questions = manage.runQuery("select * from question");
         
         
         addLabel("Select a question:");
