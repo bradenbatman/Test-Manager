@@ -21,6 +21,8 @@ public class GUI {
     private Font headFont = new Font("Helvetica", Font.PLAIN, 20);
     private JPanel panel = new JPanel();
     private JFrame frame = new JFrame("Test Manager");
+    
+    private PostgreManager manage = new PostgreManager();
 
     public GUI() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -66,7 +68,7 @@ public class GUI {
 
         addButton("Add Question").addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                addQuestionClick();
+                enterAddQuestionMenu();
             }
         });
         addButton("Edit Questions").addActionListener(new ActionListener() {
@@ -125,13 +127,13 @@ public class GUI {
         panel.add(label);
     }
 
-    private void addQuestionClick() {
+    private void enterAddQuestionMenu() {
         panel.removeAll();
         
         addLabel("Enter a question below:");
         
-        JTextField questionField = new JTextField();
-        panel.add(questionField);
+        JTextField ques = new JTextField();
+        panel.add(ques);
                 
         addLabel("Enter the correct answer:");
         JTextField corr = new JTextField();
@@ -147,7 +149,11 @@ public class GUI {
         
         addLabel("Enter one more incorrect answer:");
         JTextField inc3 = new JTextField();
-        panel.add(inc3);        
+        panel.add(inc3);   
+        
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
         
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(0,2));
@@ -163,9 +169,16 @@ public class GUI {
         
         enterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //ToDo
-            }
-        });
+            	if(ques.getText().isBlank() || corr.getText().isBlank() || inc1.getText().isBlank() || inc2.getText().isBlank() || inc3.getText().isBlank()) {
+            		errorLabel.setText("* A field was left blank *");
+            	}
+            	else
+            	{
+            		String query = "insert into question(question,answer,incorrect1,incorrect2,incorrect3) values('" + ques.getText() + "','" + corr.getText() + "','" + inc1.getText() + "','" + inc2.getText() + "','" + inc3.getText() + "')";
+            		manage.runQuery(query);
+            	}
+            
+            }});
         
 
         buttonPanel.add(cancelButton);
