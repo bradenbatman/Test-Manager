@@ -217,6 +217,8 @@ public class GUI {
         panel.removeAll();
         panel.repaint();
         
+        addHeader("Scores");
+        
         String query = "select * from testlog";
         JTable table = manage.getResultsTable(query);
         if (table instanceof JTable) {
