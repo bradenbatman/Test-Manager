@@ -1,11 +1,11 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
-public class PostgreConnect { 
+public class PostgreManager {
 
     private String databaseConnectionString = "jdbc:postgresql://localhost/testmanager";
-
     private String databaseUserName = "postgres";
 
     private String databaseUserPassword = "9484377";
@@ -26,4 +26,18 @@ public class PostgreConnect {
         }
         return conn;
     }
+
+    public void runQuery(String query) {
+		try (Statement stmt = conn.createStatement();)
+		{
+	        System.out.println("The SQL statement is: " + query + "\n");
+
+	        stmt.executeUpdate(query);
+
+	        System.out.println("Success");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
