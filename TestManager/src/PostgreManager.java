@@ -14,7 +14,7 @@ public class PostgreManager {
 
     private String databaseConnectionString = "jdbc:postgresql://localhost/testmanager";
     private String databaseUserName = "postgres";
-    private String databaseUserPassword = "9484377";
+    private String databaseUserPassword = "root";
 	private Connection conn = connect();
 
     public Connection connect() {
