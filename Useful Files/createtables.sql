@@ -33,7 +33,7 @@ CREATE TABLE "test"
 CREATE TABLE "testlog"
 (
  "logid"      serial NOT NULL,
- "numCorrect" integer NOT NULL,
+ "numcorrect" integer NOT NULL,
  "studentid"  integer NOT NULL,
  "testid"     integer NOT NULL,
  CONSTRAINT "PK_testlog" PRIMARY KEY ( "logid" ),
