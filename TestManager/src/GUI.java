@@ -152,6 +152,7 @@ public class GUI {
             	{
             		String query = "insert into question(question,answer,incorrect1,incorrect2,incorrect3) values('" + ques.getText() + "','" + corr.getText() + "','" + inc1.getText() + "','" + inc2.getText() + "','" + inc3.getText() + "')";
             		manage.runUpdateQuery(query);
+            		enterManageTestMenu();
             	}
             
             }});
@@ -200,7 +201,7 @@ public class GUI {
         
         editButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	enterQuestionEditor(questionBox.getSelectedItem().toString().charAt(0));
+            	enterQuestionEditor(questions.get(questionBox.getSelectedIndex()));
             	//System.out.println(questionBox.getSelectedItem().toString().charAt(0));
             
             }});
@@ -217,33 +218,30 @@ public class GUI {
         frame.repaint();
     }
     
-    private void enterQuestionEditor(int id) {
+    private void enterQuestionEditor(ArrayList<Object> row) {
         panel.removeAll();
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
 
         
         addHeader("Edit Quesion");
-
-        
         addLabel("Question:");
-        
-        JTextField ques = new JTextField();
+        JTextField ques = new JTextField(row.get(1).toString());
         panel.add(ques);
                 
         addLabel("Correct answer:");
-        JTextField corr = new JTextField();
+        JTextField corr = new JTextField(row.get(2).toString());
         panel.add(corr);
         
         addLabel("An incorrect answer:");
-        JTextField inc1 = new JTextField();
+        JTextField inc1 = new JTextField(row.get(3).toString());
         panel.add(inc1);
         
         addLabel("Another incorrect answer:");
-        JTextField inc2 = new JTextField();
+        JTextField inc2 = new JTextField(row.get(4).toString());
         panel.add(inc2);
         
         addLabel("One more incorrect answer:");
-        JTextField inc3 = new JTextField();
+        JTextField inc3 = new JTextField(row.get(5).toString());
         panel.add(inc3);   
         
         JLabel errorLabel = new JLabel("");
@@ -269,7 +267,9 @@ public class GUI {
             	}
             	else
             	{
-            		//todo
+            		String query = "update question set question='" + ques.getText() + "',answer='" + corr.getText() + "',incorrect1='" + inc1.getText() + "',incorrect2='" + inc2.getText() + "',incorrect3='" + inc3.getText() + "' where qid="+row.get(0);
+            		manage.runUpdateQuery(query);
+            		enterManageTestMenu();
             	}
             
             }});
