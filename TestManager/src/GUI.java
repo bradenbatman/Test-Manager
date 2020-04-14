@@ -30,6 +30,7 @@ public class GUI {
         frame.setSize(400, 400);
         frame.setVisible(true);
     }
+
     private void enterMainMenu() {
         panel.removeAll();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));

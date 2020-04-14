@@ -19,6 +19,7 @@ public class Main {
 		        System.out.println("The SQL statement is: " + strSelect + "\n");
 		        
 		        ResultSet rset = stmt.executeQuery(strSelect);
+		        
 		        System.out.println("The records selected are:");
 		        int rowCount = 0;
 		        while(rset.next()) {   // Move the cursor to the next row, return false if no more row

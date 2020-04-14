@@ -17,6 +17,7 @@ public class PostgreConnect {
         try {
 
             conn = DriverManager.getConnection(databaseConnectionString, databaseUserName, databaseUserPassword );
+
             System.out.println("You are successfully connected to the PostgreSQL database server.");
 
         } catch (SQLException e)
