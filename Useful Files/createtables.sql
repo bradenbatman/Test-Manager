@@ -2,10 +2,10 @@ CREATE TABLE "question"
 (
  "qID"        integer NOT NULL,
  "question"   varchar(255) NOT NULL,
- "answer"     char(1) NOT NULL,
- "incorrect1" char(1) NOT NULL,
- "incorrect2" char(1) NOT NULL,
- "incorrect3" char(1) NOT NULL,
+ "answer"     varchar(255) NOT NULL,
+ "incorrect1" varchar(255) NOT NULL,
+ "incorrect2" varchar(255) NOT NULL,
+ "incorrect3" varchar(255) NOT NULL,
  CONSTRAINT "PK_question" PRIMARY KEY ( "qID" )
 );
 
