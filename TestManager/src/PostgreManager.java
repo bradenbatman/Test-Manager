@@ -57,13 +57,11 @@ public class PostgreManager {
     		int numRows = rs.getRow();
     		int numColumns = rsmd.getColumnCount();
     		rs.beforeFirst();
-    		String[][] data = new String[numRows][numColumns];
+    		Object[][] data = new Object[numRows][numColumns];
     		String[] columns = new String[numColumns];
-    		
     		while (rs.next()) {
     			for (int column = 0; column < numColumns; ++column) {
-    				rs.next();
-    				data[rs.getRow()-1][column-1] = rs.getString(column);
+    				data[rs.getRow()-1][column] = rs.getString(column+1);
     			}
     		}
     		for (int column = 0; column < numColumns; ++column) {
@@ -81,4 +79,22 @@ public class PostgreManager {
 			return null;
 		}
 	}
+    
+    public int count(String columnName, String tableName) {
+    	try (Statement stmt = conn.createStatement();)
+		{
+    		String query = "select count(" + columnName + ") from " + tableName;
+	        System.out.println("The SQL statement is: " + query + "\n");
+	        
+	        ResultSet rs = stmt.executeQuery(query);
+	        rs.next();
+			int total = Integer.parseInt(rs.getString(1));
+	        System.out.println("Success");
+	        return total;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+    }
 }

@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -207,7 +208,91 @@ public class GUI {
     private void createTestClick() {
         panel.removeAll();
         panel.repaint();
+        int numQues = manage.count("qid", "question");
+        int testQues = 4;
+        ArrayList<JTextField> textFields = new ArrayList<>();
+        
+        addHeader("Create Test");
+        String query = "select * from question";
+        JTable table = manage.getResultsTable(query);
+        if (table instanceof JTable) {
+        	JScrollPane scrollPane = new JScrollPane(table);
+        	panel.add(scrollPane, BorderLayout.CENTER);
+        }
+        
+        JPanel inputPanel = new JPanel(new GridLayout(0,4));
+        addLabel("Enter the id of "+testQues+" questions:");
+        for (int i = 0; i < testQues; ++i) {
+        	textFields.add(new JTextField());
+        }
+        
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        for (JTextField textField : textFields) {
+			inputPanel.add(textField);
+		}
+        
+        JButton cancelButton = createButton("Cancel");
+        JButton enterButton = createButton("Enter");  
+        
+        cancelButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		enterManageTestMenu();
+        	}
+        });
+        
+        enterButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		for (JTextField textField : textFields) {
+        			try {
+        				if (textField.getText().isEmpty()) {
+        					errorLabel.setText("* A field was left blank *");
+        					return;
+        				}
+        				else if (Integer.parseInt(textField.getText()) > numQues || Integer.parseInt(textField.getText()) < 1) {
+        					errorLabel.setText("* A field contains an invalid integer *");
+        					return;
+        				}
+	        			int count = 0;
+	        			for (JTextField otherField : textFields) {
+							if (Integer.parseInt(textField.getText()) == Integer.parseInt(otherField.getText())) {
+								++count;
+							}
+						}
+	        			if (count > 1) {
+	        				errorLabel.setText("* Two or more fields contain the same number *");
+	        				return;
+	        			}
+        			} catch (NumberFormatException ex) {
+        				errorLabel.setText("* A field contains a non-integer character *");
+        				return;
+        			}
+				}
+        		errorLabel.setText("");
+        		String query = "insert into test(question1,question2,question3,question4) values (";
+        		for (int i = 0; i < textFields.size(); ++i) {
+        			query += Integer.parseInt(textFields.get(i).getText());
+        			if (i < textFields.size()-1) {
+        				query += ",";
+        			}
+        		}
+        		query += ")";
+        		manage.runQuery(query);
+        		System.out.println("Test created \n");
+        	}});
+        panel.add(inputPanel);
+        panel.add(errorLabel);
+        panel.add(cancelButton);
+        panel.add(enterButton);
+        
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+        
     }
+    
     private void takeTestClick() {
         panel.removeAll();
         panel.repaint();
