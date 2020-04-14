@@ -1,6 +1,6 @@
 CREATE TABLE "question"
 (
- "qID"        serial NOT NULL,
+ "qid"        serial NOT NULL,
  "question"   varchar(255) NOT NULL,
  "answer"     varchar(255) NOT NULL,
  "incorrect1" varchar(255) NOT NULL,
@@ -12,13 +12,13 @@ CREATE TABLE "question"
 CREATE TABLE "student"
 (
  "name"      varchar(50) NOT NULL,
- "studentID" serial NOT NULL,
+ "studentid" serial NOT NULL,
  CONSTRAINT "PK_student" PRIMARY KEY ( "studentID" )
 );
 
 CREATE TABLE "test"
 (
- "testID"    serial NOT NULL,
+ "testid"    serial NOT NULL,
  "question1" integer NOT NULL,
  "question2" integer NOT NULL,
  "question3" integer NOT NULL,
@@ -32,10 +32,10 @@ CREATE TABLE "test"
 
 CREATE TABLE "testlog"
 (
- "logID"      serial NOT NULL,
+ "logid"      serial NOT NULL,
  "numCorrect" integer NOT NULL,
- "studentID"  integer NOT NULL,
- "testID"     integer NOT NULL,
+ "studentid"  integer NOT NULL,
+ "testid"     integer NOT NULL,
  CONSTRAINT "PK_testlog" PRIMARY KEY ( "logID" ),
  CONSTRAINT "FK_studentID" FOREIGN KEY ( "studentID" ) REFERENCES "student" ( "studentID" ),
  CONSTRAINT "FK_testID" FOREIGN KEY ( "testID" ) REFERENCES "test" ( "testID" )
