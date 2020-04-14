@@ -13,6 +13,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -172,7 +174,7 @@ public class GUI {
 
         addHeader("Edit Question");
 
-        ArrayList<ArrayList<Object>> questions = manage.runQuery("select * from question");
+        ArrayList<ArrayList<Object>> questions = manage.runArrayQuery("select * from question");
         
         
         addLabel("Select a question:");
@@ -331,6 +333,32 @@ public class GUI {
     private void viewScoresClick() {
         panel.removeAll();
         panel.repaint();
+        
+        addHeader("Scores");
+        
+        String query = "select * from testlog";
+        JTable table = manage.getResultsTable(query);
+        if (table instanceof JTable) {
+        	JScrollPane scrollPane = new JScrollPane(table);
+        	
+        	panel.add(scrollPane);
+        }
+        JButton backButton = createButton("< Back");
+        
+        backButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				enterMainMenu();
+			}
+		});
+        panel.add(backButton);
+        
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
     }
 
 
