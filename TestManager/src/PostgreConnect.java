@@ -8,7 +8,7 @@ public class PostgreConnect {
 
     private String databaseUserName = "postgres";
 
-    private String databaseUserPassword = "root";
+    private String databaseUserPassword = "9484377";
 
     public Connection connect() {
 
