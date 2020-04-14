@@ -8,12 +8,19 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+//import java.lang.String;
 
 public class GUI {
 
@@ -169,7 +176,7 @@ public class GUI {
         
         enterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	if(ques.getText().isBlank() || corr.getText().isBlank() || inc1.getText().isBlank() || inc2.getText().isBlank() || inc3.getText().isBlank()) {
+            	if(ques.getText().isEmpty() || corr.getText().isEmpty() || inc1.getText().isEmpty() || inc2.getText().isEmpty() || inc3.getText().isEmpty()) {
             		errorLabel.setText("* A field was left blank *");
             	}
             	else
@@ -209,7 +216,48 @@ public class GUI {
     private void viewScoresClick() {
         panel.removeAll();
         panel.repaint();
+        
+        String query = "select * from testlog";
+        JTable table = manage.getResultsTable(query);
+        if (table instanceof JTable) {
+        	JScrollPane scrollPane = new JScrollPane(table);
+        	
+        	panel.add(scrollPane);
+        }
+        JButton backButton = createButton("< Back");
+        
+        backButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				enterMainMenu();
+			}
+		});
+        panel.add(backButton);
+        
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 }
