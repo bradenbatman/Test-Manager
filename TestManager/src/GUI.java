@@ -188,6 +188,70 @@ public class GUI {
         buttonPanel.setLayout(new GridLayout(0,2));
         
         JButton cancelButton = createButton("Cancel");
+        JButton editButton = createButton("Edit");  
+        
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterManageTestMenu();
+            }
+        });
+        
+        editButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterQuestionEditor(questionBox.getSelectedItem().toString().charAt(0));
+            	//System.out.println(questionBox.getSelectedItem().toString().charAt(0));
+            
+            }});
+        
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(editButton);
+        
+        panel.add(buttonPanel);
+        
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
+    
+    private void enterQuestionEditor(int id) {
+        panel.removeAll();
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        
+        addHeader("Edit Quesion");
+
+        
+        addLabel("Question:");
+        
+        JTextField ques = new JTextField();
+        panel.add(ques);
+                
+        addLabel("Correct answer:");
+        JTextField corr = new JTextField();
+        panel.add(corr);
+        
+        addLabel("An incorrect answer:");
+        JTextField inc1 = new JTextField();
+        panel.add(inc1);
+        
+        addLabel("Another incorrect answer:");
+        JTextField inc2 = new JTextField();
+        panel.add(inc2);
+        
+        addLabel("One more incorrect answer:");
+        JTextField inc3 = new JTextField();
+        panel.add(inc3);   
+        
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0,2));
+        
+        JButton cancelButton = createButton("Cancel");
         JButton enterButton = createButton("Enter");  
         
         cancelButton.addActionListener(new ActionListener() {
@@ -198,7 +262,13 @@ public class GUI {
         
         enterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	//todo
+            	if(ques.getText().isBlank() || corr.getText().isBlank() || inc1.getText().isBlank() || inc2.getText().isBlank() || inc3.getText().isBlank()) {
+            		errorLabel.setText("* A field was left blank *");
+            	}
+            	else
+            	{
+            		//todo
+            	}
             
             }});
         
