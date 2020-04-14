@@ -13,7 +13,13 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
 
 public class GUI {
 
@@ -68,12 +74,12 @@ public class GUI {
 
         addButton("Add Question").addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                enterAddQuestionMenu();
+                enterAddQuestionScreen();
             }
         });
         addButton("Edit Questions").addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                editQuestionClick();
+            	enterEditQuestionScreen();
             }
         });
         addButton("Create Test").addActionListener(new ActionListener() {
@@ -91,44 +97,14 @@ public class GUI {
         panel.repaint();
         frame.repaint();
     }
-
-    private JButton addButton (String text) {
-    	JButton button = createButton(text);
-    	panel.add(button);
-        panel.add(Box.createRigidArea(new Dimension(0,10)));
-        return button;
-    }
     
-    private JButton createButton (String text) {
-    	JButton button = new JButton(text);
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        return button;
-    }
-
-    private void addTitle (String text) {
-        JLabel title = new JLabel(text);
-        title.setFont(titleFont);
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(title);
-        panel.add(Box.createRigidArea(new Dimension(0,10)));
-    }
-    
-    private void addHeader (String text) {
-        JLabel head = new JLabel(text);
-        head.setFont(headFont);
-        head.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(head);
-        panel.add(Box.createRigidArea(new Dimension(0,10)));
-    }
-    
-    private void addLabel (String text) {
-    	JLabel label = new JLabel(text);
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(label);
-    }
-
-    private void enterAddQuestionMenu() {
+    private void enterAddQuestionScreen() {
         panel.removeAll();
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        
+        addHeader("Add Quesion");
+
         
         addLabel("Enter a question below:");
         
@@ -175,7 +151,125 @@ public class GUI {
             	else
             	{
             		String query = "insert into question(question,answer,incorrect1,incorrect2,incorrect3) values('" + ques.getText() + "','" + corr.getText() + "','" + inc1.getText() + "','" + inc2.getText() + "','" + inc3.getText() + "')";
-            		manage.runQuery(query);
+            		manage.runUpdateQuery(query);
+            	}
+            
+            }});
+        
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(enterButton);
+        
+        panel.add(buttonPanel);
+        
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
+    
+    private void enterEditQuestionScreen() {
+        panel.removeAll();
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        addHeader("Edit Question");
+
+        ArrayList<ArrayList<Object>> questions = manage.runArrayQuery("select * from question");
+        
+        
+        addLabel("Select a question:");
+        
+        JComboBox<String> questionBox = new JComboBox<String>();
+        
+        for(int row = 0;row<questions.size();row++) {
+        	questionBox.addItem((String) questions.get(row).get(0).toString() + ": " +(String) questions.get(row).get(1)+ " - " +(String) questions.get(row).get(2));
+        }
+        panel.add(questionBox);
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0,2));
+        
+        JButton cancelButton = createButton("Cancel");
+        JButton editButton = createButton("Edit");  
+        
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterManageTestMenu();
+            }
+        });
+        
+        editButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterQuestionEditor(questionBox.getSelectedItem().toString().charAt(0));
+            	//System.out.println(questionBox.getSelectedItem().toString().charAt(0));
+            
+            }});
+        
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(editButton);
+        
+        panel.add(buttonPanel);
+        
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
+    
+    private void enterQuestionEditor(int id) {
+        panel.removeAll();
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        
+        addHeader("Edit Quesion");
+
+        
+        addLabel("Question:");
+        
+        JTextField ques = new JTextField();
+        panel.add(ques);
+                
+        addLabel("Correct answer:");
+        JTextField corr = new JTextField();
+        panel.add(corr);
+        
+        addLabel("An incorrect answer:");
+        JTextField inc1 = new JTextField();
+        panel.add(inc1);
+        
+        addLabel("Another incorrect answer:");
+        JTextField inc2 = new JTextField();
+        panel.add(inc2);
+        
+        addLabel("One more incorrect answer:");
+        JTextField inc3 = new JTextField();
+        panel.add(inc3);   
+        
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0,2));
+        
+        JButton cancelButton = createButton("Cancel");
+        JButton enterButton = createButton("Enter");  
+        
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterManageTestMenu();
+            }
+        });
+        
+        enterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	if(ques.getText().isBlank() || corr.getText().isBlank() || inc1.getText().isBlank() || inc2.getText().isBlank() || inc3.getText().isBlank()) {
+            		errorLabel.setText("* A field was left blank *");
+            	}
+            	else
+            	{
+            		//todo
             	}
             
             }});
@@ -192,9 +286,39 @@ public class GUI {
         frame.repaint();
     }
 
-    private void editQuestionClick() {
-        panel.removeAll();
-        panel.repaint();
+    private JButton addButton (String text) {
+    	JButton button = createButton(text);
+    	panel.add(button);
+        panel.add(Box.createRigidArea(new Dimension(0,10)));
+        return button;
+    }
+    
+    private JButton createButton (String text) {
+    	JButton button = new JButton(text);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return button;
+    }
+
+    private void addTitle (String text) {
+        JLabel title = new JLabel(text);
+        title.setFont(titleFont);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(title);
+        panel.add(Box.createRigidArea(new Dimension(0,10)));
+    }
+    
+    private void addHeader (String text) {
+        JLabel head = new JLabel(text);
+        head.setFont(headFont);
+        head.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(head);
+        panel.add(Box.createRigidArea(new Dimension(0,10)));
+    }
+    
+    private void addLabel (String text) {
+    	JLabel label = new JLabel(text);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(label);
     }
 
     private void createTestClick() {
@@ -209,6 +333,32 @@ public class GUI {
     private void viewScoresClick() {
         panel.removeAll();
         panel.repaint();
+        
+        addHeader("Scores");
+        
+        String query = "select * from testlog";
+        JTable table = manage.getResultsTable(query);
+        if (table instanceof JTable) {
+        	JScrollPane scrollPane = new JScrollPane(table);
+        	
+        	panel.add(scrollPane);
+        }
+        JButton backButton = createButton("< Back");
+        
+        backButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				enterMainMenu();
+			}
+		});
+        panel.add(backButton);
+        
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
     }
 
 
