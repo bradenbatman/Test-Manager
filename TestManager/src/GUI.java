@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
@@ -17,9 +18,9 @@ import javax.swing.JTextField;
 public class GUI {
 
     private Font titleFont = new Font("Helvetica", Font.BOLD, 36);
+    private Font headFont = new Font("Helvetica", Font.PLAIN, 20);
     private JPanel panel = new JPanel();
     private JFrame frame = new JFrame("Test Manager");
-    private final String[] answerChoices = {"a", "b", "c", "d"};
 
     public GUI() {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -36,19 +37,9 @@ public class GUI {
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         addTitle("Test Manager");
 
-        addButton("Add Question").addActionListener(new ActionListener() {
+        addButton("Manage Tests").addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                addQuestionClick();
-            }
-        });
-        addButton("Edit Question").addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                editQuestionClick();
-            }
-        });
-        addButton("Create Test").addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                createTestClick();
+            	enterManageTestMenu();
             }
         });
         addButton("Take Test").addActionListener(new ActionListener() {
@@ -66,12 +57,49 @@ public class GUI {
         panel.repaint();
         frame.repaint();
     }
+    
+    private void enterManageTestMenu() {
+        panel.removeAll();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        addHeader("Manage Tests");
+
+        addButton("Add Question").addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addQuestionClick();
+            }
+        });
+        addButton("Edit Questions").addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                editQuestionClick();
+            }
+        });
+        addButton("Create Test").addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                createTestClick();
+            }
+        });
+        addButton("< Back").addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterMainMenu();
+            }
+        });
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
 
     private JButton addButton (String text) {
-        JButton button = new JButton(text);
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(button);
+    	JButton button = createButton(text);
+    	panel.add(button);
         panel.add(Box.createRigidArea(new Dimension(0,10)));
+        return button;
+    }
+    
+    private JButton createButton (String text) {
+    	JButton button = new JButton(text);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
         return button;
     }
 
@@ -82,30 +110,69 @@ public class GUI {
         panel.add(title);
         panel.add(Box.createRigidArea(new Dimension(0,10)));
     }
+    
+    private void addHeader (String text) {
+        JLabel head = new JLabel(text);
+        head.setFont(headFont);
+        head.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(head);
+        panel.add(Box.createRigidArea(new Dimension(0,10)));
+    }
+    
+    private void addLabel (String text) {
+    	JLabel label = new JLabel(text);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(label);
+    }
 
     private void addQuestionClick() {
         panel.removeAll();
-        JLabel questionLabel = new JLabel("Enter question below");
-        panel.add(questionLabel);
+        
+        addLabel("Enter a question below:");
+        
         JTextField questionField = new JTextField();
         panel.add(questionField);
-        JLabel answerLabel = new JLabel("Enter answer below");
-        panel.add(answerLabel);
-        JTextField a = new JTextField();
-        panel.add(a);
-        JTextField b = new JTextField();
-        panel.add(b);
-        JTextField c = new JTextField();
-        panel.add(c);
-        JTextField d = new JTextField();
-        panel.add(d);
-        JComboBox answerDropDown = new JComboBox(answerChoices);
-        panel.add(answerDropDown);
-        addButton("Enter").addActionListener(new ActionListener() {
+                
+        addLabel("Enter the correct answer:");
+        JTextField corr = new JTextField();
+        panel.add(corr);
+        
+        addLabel("Enter an incorrect answer:");
+        JTextField inc1 = new JTextField();
+        panel.add(inc1);
+        
+        addLabel("Enter another incorrect answer:");
+        JTextField inc2 = new JTextField();
+        panel.add(inc2);
+        
+        addLabel("Enter one more incorrect answer:");
+        JTextField inc3 = new JTextField();
+        panel.add(inc3);        
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0,2));
+        
+        JButton cancelButton = createButton("Cancel");
+        JButton enterButton = createButton("Enter");  
+        
+        cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                enterMainMenu();
+            	enterManageTestMenu();
             }
         });
+        
+        enterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //ToDo
+            }
+        });
+        
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(enterButton);
+        
+        panel.add(buttonPanel);
+        
         panel.revalidate();
         frame.revalidate();
         panel.repaint();
