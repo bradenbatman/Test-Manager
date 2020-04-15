@@ -82,40 +82,56 @@ public class PostgreManager {
 
 	}
     
-//    public JTable getResultsTable(String query) {
-//		try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);)
-//		{
-//	        System.out.println("The SQL statement is: " + query + "\n");
-//	        
-//	        ResultSet rs = stmt.executeQuery(query);
-//	        
-//	        ResultSetMetaData rsmd = rs.getMetaData();
-//    		rs.last();
-//    		int numRows = rs.getRow();
-//    		int numColumns = rsmd.getColumnCount();
-//    		rs.beforeFirst();
-//    		String[][] data = new String[numRows][numColumns];
-//    		String[] columns = new String[numColumns];
-//    		
-//    		while (rs.next()) {
-//    			for (int column = 0; column < numColumns; ++column) {
-//    				rs.next();
-//    				data[rs.getRow()][column] = rs.getString(column);
-//    			}
-//    		}
-//    		for (int column = 0; column < numColumns; ++column) {
-//    			columns[column] = rsmd.getColumnName(column);
-//    		}
-//    		
-//    		JTable table = new JTable(data, columns);
-//    		table.setFillsViewportHeight(true);
-//			
-//	        System.out.println("Success");
-//	        return table;
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
+    public JTable getResultsTable(String query) {
+		try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);)
+		{
+	        System.out.println("The SQL statement is: " + query + "\n");
+
+	        ResultSet rs = stmt.executeQuery(query);
+
+	        ResultSetMetaData rsmd = rs.getMetaData();
+    		rs.last();
+    		int numRows = rs.getRow();
+    		int numColumns = rsmd.getColumnCount();
+    		rs.beforeFirst();
+    		Object[][] data = new Object[numRows][numColumns];
+    		String[] columns = new String[numColumns];
+    		while (rs.next()) {
+    			for (int column = 0; column < numColumns; ++column) {
+    				data[rs.getRow()-1][column] = rs.getString(column+1);
+    			}
+    		}
+    		for (int column = 0; column < numColumns; ++column) {
+    			columns[column] = rsmd.getColumnName(column+1);
+    		}
+
+    		JTable table = new JTable(data, columns);
+    		table.setFillsViewportHeight(true);
+
+	        System.out.println("Success");
+	        return table;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+    
+    public int count(String columnName, String tableName) {
+    	try (Statement stmt = conn.createStatement();)
+		{
+    		String query = "select count(" + columnName + ") from " + tableName;
+	        System.out.println("The SQL statement is: " + query + "\n");
+
+	        ResultSet rs = stmt.executeQuery(query);
+	        rs.next();
+			int total = Integer.parseInt(rs.getString(1));
+	        System.out.println("Success");
+	        return total;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+    }
 }

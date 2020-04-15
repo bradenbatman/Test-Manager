@@ -152,6 +152,9 @@ public class GUI {
             	if(ques.getText().isBlank() || corr.getText().isBlank() || inc1.getText().isBlank() || inc2.getText().isBlank() || inc3.getText().isBlank()) {
             		errorLabel.setText("* A field was left blank *");
             	}
+            	else if(ques.getText().contains("'")|| ques.getText().contains("\"") || corr.getText().contains("'")|| corr.getText().contains("\"") || inc1.getText().contains("'")|| inc1.getText().contains("\"") || inc2.getText().contains("'")|| inc2.getText().contains("\"") || inc3.getText().contains("'")|| inc3.getText().contains("\"")) {
+            		errorLabel.setText("* Illegal character used *");
+            	}
             	else
             	{
             		String query = "insert into question(question,answer,incorrect1,incorrect2,incorrect3) values('" + ques.getText() + "','" + corr.getText() + "','" + inc1.getText() + "','" + inc2.getText() + "','" + inc3.getText() + "')";
@@ -278,6 +281,9 @@ public class GUI {
             	if(ques.getText().isBlank() || corr.getText().isBlank() || inc1.getText().isBlank() || inc2.getText().isBlank() || inc3.getText().isBlank()) {
             		errorLabel.setText("* A field was left blank *");
             	}
+            	else if(ques.getText().contains("'")|| ques.getText().contains("\"") || corr.getText().contains("'")|| corr.getText().contains("\"") || inc1.getText().contains("'")|| inc1.getText().contains("\"") || inc2.getText().contains("'")|| inc2.getText().contains("\"") || inc3.getText().contains("'")|| inc3.getText().contains("\"")) {
+            		errorLabel.setText("* Illegal character used *");
+            	}
             	else
             	{
             		String query = "update question set question='" + ques.getText() + "',answer='" + corr.getText() + "',incorrect1='" + inc1.getText() + "',incorrect2='" + inc2.getText() + "',incorrect3='" + inc3.getText() + "' where qid="+row.get(0);
@@ -337,7 +343,92 @@ public class GUI {
     private void createTestClick() {
         panel.removeAll();
         panel.repaint();
+        int numQues = manage.count("qid", "question");
+        int testQues = 4;
+        ArrayList<JTextField> textFields = new ArrayList<>();
+
+        addHeader("Create Test");
+        String query = "select * from question";
+        JTable table = manage.getResultsTable(query);
+        if (table instanceof JTable) {
+        	JScrollPane scrollPane = new JScrollPane(table);
+        	panel.add(scrollPane, BorderLayout.CENTER);
+        }
+
+        JPanel inputPanel = new JPanel(new GridLayout(0,4));
+        addLabel("Enter the id of "+testQues+" questions:");
+        for (int i = 0; i < testQues; ++i) {
+        	textFields.add(new JTextField());
+        }
+
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        for (JTextField textField : textFields) {
+			inputPanel.add(textField);
+		}
+
+        JButton cancelButton = createButton("Cancel");
+        JButton enterButton = createButton("Enter");
+
+        cancelButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		enterManageTestMenu();
+        	}
+        });
+
+        enterButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		for (JTextField textField : textFields) {
+        			try {
+        				if (textField.getText().isEmpty()) {
+        					errorLabel.setText("* A field was left blank *");
+        					return;
+        				}
+        				else if (Integer.parseInt(textField.getText()) > numQues || Integer.parseInt(textField.getText()) < 1) {
+        					errorLabel.setText("* A field contains an invalid integer *");
+        					return;
+        				}
+	        			int count = 0;
+	        			for (JTextField otherField : textFields) {
+							if (Integer.parseInt(textField.getText()) == Integer.parseInt(otherField.getText())) {
+								++count;
+							}
+						}
+	        			if (count > 1) {
+	        				errorLabel.setText("* Two or more fields contain the same number *");
+	        				return;
+	        			}
+        			} catch (NumberFormatException ex) {
+        				errorLabel.setText("* A field contains a non-integer character *");
+        				return;
+        			}
+				}
+        		errorLabel.setText("");
+        		String query = "insert into test(question1,question2,question3,question4) values (";
+        		for (int i = 0; i < textFields.size(); ++i) {
+        			query += Integer.parseInt(textFields.get(i).getText());
+        			if (i < textFields.size()-1) {
+        				query += ",";
+        			}
+        		}
+        		query += ")";
+        		manage.runUpdateQuery(query);
+        		System.out.println("Test created \n");
+        		enterMainMenu();
+        	}});
+        panel.add(inputPanel);
+        panel.add(errorLabel);
+        panel.add(cancelButton);
+        panel.add(enterButton);
+
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+
     }
+    
     private void takeTestClick() {
         panel.removeAll();
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
@@ -391,6 +482,9 @@ public class GUI {
             	else if(((String) studentBox.getSelectedItem()).isBlank()) {
             		errorLabel.setText("* A name must be input. *");
 
+            	}
+            	else if(((String) studentBox.getSelectedItem()).contains("'") || ((String) studentBox.getSelectedItem()).contains("\"")) {
+            		errorLabel.setText("* Illegal character used *");
             	}
             	else
             	{
