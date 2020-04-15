@@ -8,7 +8,9 @@ import java.util.ArrayList;
 
 import javax.swing.JTable;
 
-public class PostgreManager { 
+import javax.swing.JTable;
+
+public class PostgreManager {
 
     private String databaseConnectionString = "jdbc:postgresql://localhost/testmanager";
     private String databaseUserName = "postgres";
@@ -31,24 +33,24 @@ public class PostgreManager {
         }
         return conn;
     }
-    
+
     public void runUpdateQuery(String query) {
 		try (Statement stmt = conn.createStatement();)
 		{
 	        System.out.println("The SQL statement is: " + query + "\n");
-	        
+
 	        stmt.executeUpdate(query);
-			
+
 	        System.out.println("Success");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-    
+
     public ArrayList<ArrayList<Object>> runQuery(String query) {
     	ArrayList<ArrayList<Object>> list = new ArrayList<ArrayList<Object>>();
-    	
+
 		try (Statement stmt = conn.createStatement();)
 		{
 	        System.out.println("The SQL statement is: " + query + "\n");
@@ -57,31 +59,31 @@ public class PostgreManager {
 	        
 	        try {
 				while(rset.next()) {   // Move the cursor to the next row, return false if no more row
-					
+
 					ArrayList<Object> sub = new ArrayList<Object>();
 					for(int colCount = 1; colCount <= rset.getMetaData().getColumnCount(); colCount++) {
 						sub.add(rset.getObject(colCount));
 					}
-					
+
 					list.add(sub);
 				}
-				
+
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	        
-	        System.out.println("Success");	        
-	        
+
+	        System.out.println("Success");
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
         return list;
 
 	}
-    
+
     public JTable getResultsTable(String query) {
 		try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);)
 		{
@@ -116,7 +118,7 @@ public class PostgreManager {
 			return null;
 		}
 	}
-    
+
     public int count(String columnName, String tableName) {
     	try (Statement stmt = conn.createStatement();)
 		{
