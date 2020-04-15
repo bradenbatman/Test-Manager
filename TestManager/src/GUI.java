@@ -21,6 +21,8 @@ import javax.swing.table.TableColumn;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 public class GUI {
@@ -409,13 +411,7 @@ public class GUI {
                     int studentid = (int) studentids.get(0).get(0);
                     
                     
-                    //todo implement take test
-                    //Take Test(studentid, tests.get(testBox.getSelectedIndex()).get(0)
-
-            		
-            		
-            	//enterQuestionEditor(tests.get(questionBox.getSelectedIndex()));
-            	//System.out.println(questionBox.getSelectedItem().toString().charAt(0));
+                    takeTest(studentid, (int) (tests.get(testBox.getSelectedIndex()).get(0)));
             	}
             }});
         
@@ -430,6 +426,95 @@ public class GUI {
         panel.repaint();
         frame.repaint();
     }
+    
+    private void takeTest(int studentid, int testid) {
+    	panel.removeAll();
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        addHeader("Take Test");
+        
+        ArrayList<ArrayList<Object>> questionids = manage.runQuery("select question1, question2, question3, question4 from test where testid='" + testid + "'");
+        
+        List<String> correctAnswers = new ArrayList();
+        List<JComboBox<String>> answerBoxes = new ArrayList();
+        List<String> questionList = new ArrayList();
+
+        
+        for(int i=0;i<questionids.get(0).size();i++) {
+        	ArrayList<ArrayList<Object>> questions = manage.runQuery("select * from question where qid='" + questionids.get(0).get(i) + "'");
+        	questionList.add(questions.get(0).get(1).toString());            
+            
+            List<String> answers = new ArrayList();
+            
+            correctAnswers.add(questions.get(0).get(2).toString());
+            answers.add(questions.get(0).get(2).toString());
+            answers.add(questions.get(0).get(3).toString());
+            answers.add(questions.get(0).get(4).toString());
+            answers.add(questions.get(0).get(5).toString());
+            
+            Collections.shuffle(answers);
+            JComboBox<String> answerOptions = new JComboBox<String>();
+            
+            for(int x=0;x<answers.size();x++) {
+            	answerOptions.addItem(answers.get(x));
+            }
+            
+            answerBoxes.add(answerOptions);
+            
+        }
+        
+        for(int i=0;i<questionList.size();i++) {
+        	addLabel("Question:");
+        	addLabel(questionList.get(i));
+            addLabel("Select answer:");
+            panel.add(answerBoxes.get(i));
+        }
+        
+                
+        
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0,2));
+        
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
+        
+        JButton cancelButton = createButton("Cancel");
+        JButton submitButton = createButton("Submit");  
+        
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterMainMenu();
+            }
+        });
+        
+        submitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	int numCorrect = 0;
+            	for(int x=0;x<correctAnswers.size();x++) {
+            		if(answerBoxes.get(x).getSelectedItem().equals(correctAnswers.get(x))) {
+            			numCorrect++;
+            		}
+            	}
+            	System.out.println(numCorrect);
+            	String query = "insert into testlog(numcorrect,studentid,testid) values('" + numCorrect + "','" + studentid + "','" + testid + "')";
+        		manage.runUpdateQuery(query);
+        		viewScoresClick();
+            }});
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(submitButton);
+        
+        panel.add(buttonPanel);
+        
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
+    
+    
 
     private void viewScoresClick() {
         panel.removeAll();
