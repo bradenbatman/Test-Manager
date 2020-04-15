@@ -650,22 +650,4 @@ public class GUI {
         frame.repaint();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
