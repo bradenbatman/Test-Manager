@@ -54,9 +54,9 @@ public class PostgreManager {
 		try (Statement stmt = conn.createStatement();)
 		{
 	        System.out.println("The SQL statement is: " + query + "\n");
-
-	        ResultSet rset = stmt.executeQuery("Select * from question");
-
+	        
+	        ResultSet rset = stmt.executeQuery(query);
+	        
 	        try {
 				while(rset.next()) {   // Move the cursor to the next row, return false if no more row
 

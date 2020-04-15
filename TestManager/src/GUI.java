@@ -21,6 +21,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.TableColumn;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class GUI {
 
@@ -149,6 +156,9 @@ public class GUI {
             	if(ques.getText().isEmpty() || corr.getText().isEmpty() || inc1.getText().isEmpty() || inc2.getText().isEmpty() || inc3.getText().isEmpty()) {
             		errorLabel.setText("* A field was left blank *");
             	}
+            	else if(ques.getText().contains("'")|| ques.getText().contains("\"") || corr.getText().contains("'")|| corr.getText().contains("\"") || inc1.getText().contains("'")|| inc1.getText().contains("\"") || inc2.getText().contains("'")|| inc2.getText().contains("\"") || inc3.getText().contains("'")|| inc3.getText().contains("\"")) {
+            		errorLabel.setText("* Illegal character used *");
+            	}
             	else
             	{
             		String query = "insert into question(question,answer,incorrect1,incorrect2,incorrect3) values('" + ques.getText() + "','" + corr.getText() + "','" + inc1.getText() + "','" + inc2.getText() + "','" + inc3.getText() + "')";
@@ -191,6 +201,10 @@ public class GUI {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(0,2));
 
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
+
         JButton cancelButton = createButton("Cancel");
         JButton editButton = createButton("Edit");
 
@@ -202,8 +216,14 @@ public class GUI {
 
         editButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+            	if(questionBox.getSelectedIndex() == -1) {
+            		errorLabel.setText("* No question is selected. *");
+            	}
+            	else
+            	{
             	enterQuestionEditor(questions.get(questionBox.getSelectedIndex()));
             	//System.out.println(questionBox.getSelectedItem().toString().charAt(0));
+            	}
 
             }});
 
@@ -265,6 +285,9 @@ public class GUI {
             public void actionPerformed(ActionEvent e) {
             	if(ques.getText().isBlank() || corr.getText().isBlank() || inc1.getText().isBlank() || inc2.getText().isBlank() || inc3.getText().isBlank()) {
             		errorLabel.setText("* A field was left blank *");
+            	}
+            	else if(ques.getText().contains("'")|| ques.getText().contains("\"") || corr.getText().contains("'")|| corr.getText().contains("\"") || inc1.getText().contains("'")|| inc1.getText().contains("\"") || inc2.getText().contains("'")|| inc2.getText().contains("\"") || inc3.getText().contains("'")|| inc3.getText().contains("\"")) {
+            		errorLabel.setText("* Illegal character used *");
             	}
             	else
             	{
@@ -395,8 +418,10 @@ public class GUI {
         			}
         		}
         		query += ")";
-        		manage.runQuery(query);
+        		manage.runUpdateQuery(query);
         		System.out.println("Test created \n");
+        		enterMainMenu();
+
         	}});
         panel.add(inputPanel);
         panel.add(errorLabel);
@@ -412,8 +437,184 @@ public class GUI {
 
     private void takeTestClick() {
         panel.removeAll();
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        addHeader("Take Test");
+        
+        ArrayList<ArrayList<Object>> students = manage.runQuery("select * from student"); 
+        
+        addLabel("Select an existing student or put in your name:");
+        JComboBox<String> studentBox = new JComboBox<String>();
+        studentBox.setEditable(true);
+        
+        for(int row = 0;row<students.size();row++) {
+        	studentBox.addItem(students.get(row).get(0).toString());
+        }
+        panel.add(studentBox);
+        
+        
+        ArrayList<ArrayList<Object>> tests = manage.runQuery("select * from test");        
+        
+        addLabel("Select a test:");
+        
+        JComboBox<String> testBox = new JComboBox<String>();
+        
+        for(int row = 0;row<tests.size();row++) {
+        	testBox.addItem("Test: "+ (String) tests.get(row).get(0).toString());
+        }
+        panel.add(testBox);
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0,2));
+        
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
+        
+        JButton cancelButton = createButton("Cancel");
+        JButton takeButton = createButton("Take");  
+        
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterMainMenu();
+            }
+        });
+        
+        takeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	if(testBox.getSelectedIndex() == -1) {
+            		errorLabel.setText("* No test is selected. *");
+            	}
+            	else if(((String) studentBox.getSelectedItem()).isBlank()) {
+            		errorLabel.setText("* A name must be input. *");
+
+            	}
+            	else if(((String) studentBox.getSelectedItem()).contains("'") || ((String) studentBox.getSelectedItem()).contains("\"")) {
+            		errorLabel.setText("* Illegal character used *");
+            	}
+            	else
+            	{
+            		boolean newName = true;
+            		for(int row = 0;row<students.size();row++) {
+            			if(students.get(row).get(0) == studentBox.getSelectedItem()) {
+            				newName = false;
+            			}
+            		}
+            		
+            		//Create new student if they input a new name
+            		if(newName) {
+            			String query = "insert into student(name) values('"+ studentBox.getSelectedItem() + "')";
+                		manage.runUpdateQuery(query);
+            		}
+            		
+                    ArrayList<ArrayList<Object>> studentids = manage.runQuery("select studentid from student where name='" + studentBox.getSelectedItem() + "'");
+                    int studentid = (int) studentids.get(0).get(0);
+                    
+                    
+                    takeTest(studentid, (int) (tests.get(testBox.getSelectedIndex()).get(0)));
+            	}
+            }});
+        
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(takeButton);
+        
+        panel.add(buttonPanel);
+        
+        panel.revalidate();
+        frame.revalidate();
         panel.repaint();
+        frame.repaint();
     }
+    
+    private void takeTest(int studentid, int testid) {
+    	panel.removeAll();
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        addHeader("Take Test");
+        
+        ArrayList<ArrayList<Object>> questionids = manage.runQuery("select question1, question2, question3, question4 from test where testid='" + testid + "'");
+        
+        List<String> correctAnswers = new ArrayList();
+        List<JComboBox<String>> answerBoxes = new ArrayList();
+        List<String> questionList = new ArrayList();
+
+        
+        for(int i=0;i<questionids.get(0).size();i++) {
+        	ArrayList<ArrayList<Object>> questions = manage.runQuery("select * from question where qid='" + questionids.get(0).get(i) + "'");
+        	questionList.add(questions.get(0).get(1).toString());            
+            
+            List<String> answers = new ArrayList();
+            
+            correctAnswers.add(questions.get(0).get(2).toString());
+            answers.add(questions.get(0).get(2).toString());
+            answers.add(questions.get(0).get(3).toString());
+            answers.add(questions.get(0).get(4).toString());
+            answers.add(questions.get(0).get(5).toString());
+            
+            Collections.shuffle(answers);
+            JComboBox<String> answerOptions = new JComboBox<String>();
+            
+            for(int x=0;x<answers.size();x++) {
+            	answerOptions.addItem(answers.get(x));
+            }
+            
+            answerBoxes.add(answerOptions);
+            
+        }
+        
+        for(int i=0;i<questionList.size();i++) {
+        	addLabel("Question:");
+        	addLabel(questionList.get(i));
+            addLabel("Select answer:");
+            panel.add(answerBoxes.get(i));
+        }
+        
+                
+        
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0,2));
+        
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
+        
+        JButton cancelButton = createButton("Cancel");
+        JButton submitButton = createButton("Submit");  
+        
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterMainMenu();
+            }
+        });
+        
+        submitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	int numCorrect = 0;
+            	for(int x=0;x<correctAnswers.size();x++) {
+            		if(answerBoxes.get(x).getSelectedItem().equals(correctAnswers.get(x))) {
+            			numCorrect++;
+            		}
+            	}
+            	System.out.println(numCorrect);
+            	String query = "insert into testlog(numcorrect,studentid,testid) values('" + numCorrect + "','" + studentid + "','" + testid + "')";
+        		manage.runUpdateQuery(query);
+        		viewScoresClick();
+            }});
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(submitButton);
+        
+        panel.add(buttonPanel);
+        
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
+    
+    
 
     private void viewScoresClick() {
         panel.removeAll();
@@ -422,24 +623,27 @@ public class GUI {
         addHeader("Scores");
 
         String query = "select * from testlog";
-        JTable table = manage.getResultsTable(query);
-        if (table instanceof JTable) {
-        	JScrollPane scrollPane = new JScrollPane(table);
-
-        	panel.add(scrollPane);
+        ArrayList<ArrayList<Object>> scores = manage.runQuery(query);
+        
+        String[] names = new String[]{"logid", "numcorrect", "studentid", "testid"};
+        Object[][] cells = new Object[scores.size()][4];
+        
+        for(int row=0;row<scores.size();row++) {
+        	for(int col=0;col<scores.get(row).size();col++) {
+        		cells[row][col] = scores.get(row).get(col);
+        	}
         }
-        JButton backButton = createButton("< Back");
-
-        backButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				enterMainMenu();
-			}
-		});
-        panel.add(backButton);
-
+        
+        
+        
+        JTable table = new JTable(cells, names);
+        panel.add(new JScrollPane(table));
+        
+        addButton("< Back").addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterMainMenu();
+            }
+        });
         panel.revalidate();
         frame.revalidate();
         panel.repaint();
