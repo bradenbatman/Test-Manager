@@ -1,18 +1,19 @@
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -21,13 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.TableColumn;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class GUI {
 
@@ -35,6 +29,7 @@ public class GUI {
     private Font headFont = new Font("Helvetica", Font.PLAIN, 20);
     private JPanel panel = new JPanel();
     private JFrame frame = new JFrame("Test Manager");
+    private Color backgroundColor = new Color(217, 217, 217);
 
     private PostgreManager manage = new PostgreManager();
 
@@ -45,276 +40,7 @@ public class GUI {
         frame.add(panel, BorderLayout.CENTER);
         frame.setSize(400, 400);
         frame.setVisible(true);
-    }
-
-    private void enterMainMenu() {
-        panel.removeAll();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        addTitle("Test Manager");
-
-        addButton("Manage Tests").addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	enterManageTestMenu();
-            }
-        });
-        addButton("Take Test").addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                takeTestClick();
-            }
-        });
-        addButton("View Scores").addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                viewScoresClick();
-            }
-        });
-        panel.revalidate();
-        frame.revalidate();
-        panel.repaint();
-        frame.repaint();
-    }
-
-    private void enterManageTestMenu() {
-        panel.removeAll();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        addHeader("Manage Tests");
-
-        addButton("Add Question").addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                enterAddQuestionScreen();
-            }
-        });
-        addButton("Edit Questions").addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	enterEditQuestionScreen();
-            }
-        });
-        addButton("Create Test").addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                createTestClick();
-            }
-        });
-        addButton("< Back").addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	enterMainMenu();
-            }
-        });
-        panel.revalidate();
-        frame.revalidate();
-        panel.repaint();
-        frame.repaint();
-    }
-
-    private void enterAddQuestionScreen() {
-        panel.removeAll();
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-
-
-        addHeader("Add Quesion");
-
-
-        addLabel("Enter a question below:");
-
-        JTextField ques = new JTextField();
-        panel.add(ques);
-
-        addLabel("Enter the correct answer:");
-        JTextField corr = new JTextField();
-        panel.add(corr);
-
-        addLabel("Enter an incorrect answer:");
-        JTextField inc1 = new JTextField();
-        panel.add(inc1);
-
-        addLabel("Enter another incorrect answer:");
-        JTextField inc2 = new JTextField();
-        panel.add(inc2);
-
-        addLabel("Enter one more incorrect answer:");
-        JTextField inc3 = new JTextField();
-        panel.add(inc3);
-
-        JLabel errorLabel = new JLabel("");
-        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(errorLabel);
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(0,2));
-
-        JButton cancelButton = createButton("Cancel");
-        JButton enterButton = createButton("Enter");
-
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	enterManageTestMenu();
-            }
-        });
-
-        enterButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	if(ques.getText().isEmpty() || corr.getText().isEmpty() || inc1.getText().isEmpty() || inc2.getText().isEmpty() || inc3.getText().isEmpty()) {
-            		errorLabel.setText("* A field was left blank *");
-            	}
-            	else if(ques.getText().contains("'")|| ques.getText().contains("\"") || corr.getText().contains("'")|| corr.getText().contains("\"") || inc1.getText().contains("'")|| inc1.getText().contains("\"") || inc2.getText().contains("'")|| inc2.getText().contains("\"") || inc3.getText().contains("'")|| inc3.getText().contains("\"")) {
-            		errorLabel.setText("* Illegal character used *");
-            	}
-            	else
-            	{
-            		String query = "insert into question(question,answer,incorrect1,incorrect2,incorrect3) values('" + ques.getText() + "','" + corr.getText() + "','" + inc1.getText() + "','" + inc2.getText() + "','" + inc3.getText() + "')";
-            		manage.runUpdateQuery(query);
-            		enterManageTestMenu();
-            	}
-
-            }});
-
-
-        buttonPanel.add(cancelButton);
-        buttonPanel.add(enterButton);
-
-        panel.add(buttonPanel);
-
-        panel.revalidate();
-        frame.revalidate();
-        panel.repaint();
-        frame.repaint();
-    }
-
-    private void enterEditQuestionScreen() {
-        panel.removeAll();
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        addHeader("Edit Question");
-
-        ArrayList<ArrayList<Object>> questions = manage.runQuery("select * from question");
-
-
-        addLabel("Select a question:");
-
-        JComboBox<String> questionBox = new JComboBox<String>();
-
-        for(int row = 0;row<questions.size();row++) {
-        	questionBox.addItem((String) questions.get(row).get(0).toString() + ": " +(String) questions.get(row).get(1)+ " - " +(String) questions.get(row).get(2));
-        }
-        panel.add(questionBox);
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(0,2));
-
-        JLabel errorLabel = new JLabel("");
-        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(errorLabel);
-
-        JButton cancelButton = createButton("Cancel");
-        JButton editButton = createButton("Edit");
-
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	enterManageTestMenu();
-            }
-        });
-
-        editButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	if(questionBox.getSelectedIndex() == -1) {
-            		errorLabel.setText("* No question is selected. *");
-            	}
-            	else
-            	{
-            	enterQuestionEditor(questions.get(questionBox.getSelectedIndex()));
-            	//System.out.println(questionBox.getSelectedItem().toString().charAt(0));
-            	}
-
-            }});
-
-
-        buttonPanel.add(cancelButton);
-        buttonPanel.add(editButton);
-
-        panel.add(buttonPanel);
-
-        panel.revalidate();
-        frame.revalidate();
-        panel.repaint();
-        frame.repaint();
-    }
-
-    private void enterQuestionEditor(ArrayList<Object> row) {
-        panel.removeAll();
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-
-
-        addHeader("Edit Quesion");
-        addLabel("Question:");
-        JTextField ques = new JTextField(row.get(1).toString());
-        panel.add(ques);
-
-        addLabel("Correct answer:");
-        JTextField corr = new JTextField(row.get(2).toString());
-        panel.add(corr);
-
-        addLabel("An incorrect answer:");
-        JTextField inc1 = new JTextField(row.get(3).toString());
-        panel.add(inc1);
-
-        addLabel("Another incorrect answer:");
-        JTextField inc2 = new JTextField(row.get(4).toString());
-        panel.add(inc2);
-
-        addLabel("One more incorrect answer:");
-        JTextField inc3 = new JTextField(row.get(5).toString());
-        panel.add(inc3);
-
-        JLabel errorLabel = new JLabel("");
-        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel.add(errorLabel);
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(0,2));
-
-        JButton cancelButton = createButton("Cancel");
-        JButton enterButton = createButton("Enter");
-
-        cancelButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	enterManageTestMenu();
-            }
-        });
-
-        enterButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	if(ques.getText().isBlank() || corr.getText().isBlank() || inc1.getText().isBlank() || inc2.getText().isBlank() || inc3.getText().isBlank()) {
-            		errorLabel.setText("* A field was left blank *");
-            	}
-            	else if(ques.getText().contains("'")|| ques.getText().contains("\"") || corr.getText().contains("'")|| corr.getText().contains("\"") || inc1.getText().contains("'")|| inc1.getText().contains("\"") || inc2.getText().contains("'")|| inc2.getText().contains("\"") || inc3.getText().contains("'")|| inc3.getText().contains("\"")) {
-            		errorLabel.setText("* Illegal character used *");
-            	}
-            	else
-            	{
-            		String query = "update question set question='" + ques.getText() + "',answer='" + corr.getText() + "',incorrect1='" + inc1.getText() + "',incorrect2='" + inc2.getText() + "',incorrect3='" + inc3.getText() + "' where qid="+row.get(0);
-            		manage.runUpdateQuery(query);
-            		enterManageTestMenu();
-            	}
-
-            }});
-
-
-        buttonPanel.add(cancelButton);
-        buttonPanel.add(enterButton);
-
-        panel.add(buttonPanel);
-
-        panel.revalidate();
-        frame.revalidate();
-        panel.repaint();
-        frame.repaint();
-    }
-
-    private JButton addButton (String text) {
-    	JButton button = createButton(text);
-    	panel.add(button);
-        panel.add(Box.createRigidArea(new Dimension(0,10)));
-        return button;
+        panel.setBackground(backgroundColor);
     }
 
     private JButton createButton (String text) {
@@ -344,10 +70,296 @@ public class GUI {
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(label);
     }
+    
+    private void addCancelButtonPanel (JButton cancelButton, JButton optionButton) {
+    	JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(0,2));
+    	buttonPanel.setBackground(backgroundColor);
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(optionButton);
+        panel.add(buttonPanel);
+    }
+    
+    private void addButtonMenu(JButton[] buttons) {
+    	JPanel buttonPanel = new JPanel();
+    	buttonPanel.setLayout(new GridLayout(buttons.length,1));
+    	buttonPanel.setBackground(backgroundColor);
+        for (JButton button: buttons) {
+        	buttonPanel.add(button);
+        }
+        panel.add(buttonPanel);
+    }
 
-    private void createTestClick() {
+    private void enterMainMenu() {
         panel.removeAll();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+
+        addTitle("Test Manager");
+        addLabel("By Braden Batman, Matthew Heck, and Micah Withers");
+        
+        JButton manageButton = createButton("Manage Tests");
+        JButton takeButton = createButton("Take a Test");
+        JButton viewButton = createButton("View Scores");
+        JButton exitButton = createButton("Exit");
+
+        
+        addButtonMenu(new JButton[] {manageButton, takeButton, viewButton, exitButton});
+        
+        manageButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterManageTestMenu();
+            }
+        });
+        takeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                enterTakeTestScreen();
+            }
+        });
+        viewButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                enterViewScoresScreen();
+            }
+        });
+        exitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	System.exit(0);
+            }
+        });
+        
+        panel.revalidate();
+        frame.revalidate();
         panel.repaint();
+        frame.repaint();
+    }
+
+    private void enterManageTestMenu() {
+        panel.removeAll();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        addHeader("Manage Tests");
+        
+        JButton addButton = createButton("Add Question");
+        JButton editButton = createButton("Edit Questions");
+        JButton createButton = createButton("Create Test");
+        JButton backButton = createButton("< Back");
+        
+        addButtonMenu(new JButton[] {addButton, editButton, createButton, backButton});
+        
+        addButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                enterAddQuestionScreen();
+            }
+        });
+        editButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterEditQuestionScreen();
+            }
+        });
+        createButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                enterCreateTestScreen();
+            }
+        });
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterMainMenu();
+            }
+        });
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
+
+    private void enterAddQuestionScreen() {
+        panel.removeAll();
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        addHeader("Add Question");
+
+        addLabel("Enter a question:");
+        JTextField ques = new JTextField();
+        panel.add(ques);
+
+        addLabel("Enter the correct answer:");
+        JTextField corr = new JTextField();
+        panel.add(corr);
+
+        addLabel("Enter an incorrect answer:");
+        JTextField inc1 = new JTextField();
+        panel.add(inc1);
+
+        addLabel("Enter another incorrect answer:");
+        JTextField inc2 = new JTextField();
+        panel.add(inc2);
+
+        addLabel("Enter one more incorrect answer:");
+        JTextField inc3 = new JTextField();
+        panel.add(inc3);
+
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
+
+
+        JButton cancelButton = createButton("Cancel");
+        JButton enterButton = createButton("Enter");
+        addCancelButtonPanel(cancelButton, enterButton);
+
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterManageTestMenu();
+            }
+        });
+
+        enterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	if(ques.getText().isEmpty() || corr.getText().isEmpty() || inc1.getText().isEmpty() || inc2.getText().isEmpty() || inc3.getText().isEmpty()) {
+            		errorLabel.setText("* A field was left blank *");
+            	}
+            	else if(ques.getText().contains("'")|| ques.getText().contains("\"") || corr.getText().contains("'")|| corr.getText().contains("\"") || inc1.getText().contains("'")|| inc1.getText().contains("\"") || inc2.getText().contains("'")|| inc2.getText().contains("\"") || inc3.getText().contains("'")|| inc3.getText().contains("\"")) {
+            		errorLabel.setText("* Illegal character used *");
+            	}
+            	else
+            	{
+            		String query = "insert into question(question,answer,incorrect1,incorrect2,incorrect3) values('" + ques.getText() + "','" + corr.getText() + "','" + inc1.getText() + "','" + inc2.getText() + "','" + inc3.getText() + "')";
+            		manage.runUpdateQuery(query);
+            		enterManageTestMenu();
+            	}
+
+            }});
+
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
+
+    private void enterEditQuestionScreen() {
+    	panel.removeAll();
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        addHeader("Edit Question");
+
+        ArrayList<ArrayList<Object>> questions = manage.runQuery("select * from question");
+
+
+        addLabel("Select a question:");
+
+        JComboBox<String> questionBox = new JComboBox<String>();
+
+        for(int row = 0;row<questions.size();row++) {
+        	questionBox.addItem((String) questions.get(row).get(0).toString() + ": " +(String) questions.get(row).get(1)+ " - " +(String) questions.get(row).get(2));
+        }
+        panel.add(questionBox);
+
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
+
+        JButton cancelButton = createButton("Cancel");
+        JButton editButton = createButton("Edit");
+        addCancelButtonPanel(cancelButton, editButton);
+
+
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterManageTestMenu();
+            }
+        });
+
+        editButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	if(questionBox.getSelectedIndex() == -1) {
+            		errorLabel.setText("* No question is selected. *");
+            	}
+            	else
+            	{
+            	enterQuestionEditor(questions.get(questionBox.getSelectedIndex()));
+            	//System.out.println(questionBox.getSelectedItem().toString().charAt(0));
+            	}
+
+            }});
+
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
+
+    private void enterQuestionEditor(ArrayList<Object> row) {
+        panel.removeAll();
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        addHeader("Edit Quesion");
+        addLabel("Question:");
+        JTextField ques = new JTextField(row.get(1).toString());
+        panel.add(ques);
+
+        addLabel("Correct answer:");
+        JTextField corr = new JTextField(row.get(2).toString());
+        panel.add(corr);
+
+        addLabel("An incorrect answer:");
+        JTextField inc1 = new JTextField(row.get(3).toString());
+        panel.add(inc1);
+
+        addLabel("Another incorrect answer:");
+        JTextField inc2 = new JTextField(row.get(4).toString());
+        panel.add(inc2);
+
+        addLabel("One more incorrect answer:");
+        JTextField inc3 = new JTextField(row.get(5).toString());
+        panel.add(inc3);
+
+        JLabel errorLabel = new JLabel("");
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(errorLabel);
+
+        JButton cancelButton = createButton("Cancel");
+        JButton enterButton = createButton("Enter");
+        addCancelButtonPanel(cancelButton, enterButton);
+
+
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	enterManageTestMenu();
+            }
+        });
+
+        enterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	if(ques.getText().isBlank() || corr.getText().isBlank() || inc1.getText().isBlank() || inc2.getText().isBlank() || inc3.getText().isBlank()) {
+            		errorLabel.setText("* A field was left blank *");
+            	}
+            	else if(ques.getText().contains("'")|| ques.getText().contains("\"") || corr.getText().contains("'")|| corr.getText().contains("\"") || inc1.getText().contains("'")|| inc1.getText().contains("\"") || inc2.getText().contains("'")|| inc2.getText().contains("\"") || inc3.getText().contains("'")|| inc3.getText().contains("\"")) {
+            		errorLabel.setText("* Illegal character used *");
+            	}
+            	else
+            	{
+            		String query = "update question set question='" + ques.getText() + "',answer='" + corr.getText() + "',incorrect1='" + inc1.getText() + "',incorrect2='" + inc2.getText() + "',incorrect3='" + inc3.getText() + "' where qid="+row.get(0);
+            		manage.runUpdateQuery(query);
+            		enterManageTestMenu();
+            	}
+
+            }});
+
+        panel.revalidate();
+        frame.revalidate();
+        panel.repaint();
+        frame.repaint();
+    }
+
+    private void enterCreateTestScreen() {
+        panel.removeAll();
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
         int numQues = manage.count("qid", "question");
         int testQues = 4;
         ArrayList<JTextField> textFields = new ArrayList<>();
@@ -361,7 +373,9 @@ public class GUI {
         }
 
         JPanel inputPanel = new JPanel(new GridLayout(0,4));
-        addLabel("Enter the id of "+testQues+" questions:");
+        inputPanel.setBackground(backgroundColor);
+        
+        addLabel("Enter the qid of "+testQues+" questions:");
         for (int i = 0; i < testQues; ++i) {
         	textFields.add(new JTextField());
         }
@@ -372,9 +386,13 @@ public class GUI {
         for (JTextField textField : textFields) {
 			inputPanel.add(textField);
 		}
+        
+        panel.add(inputPanel);
+        panel.add(errorLabel);
 
         JButton cancelButton = createButton("Cancel");
         JButton enterButton = createButton("Enter");
+        addCancelButtonPanel(cancelButton, enterButton);
 
         cancelButton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
@@ -423,10 +441,6 @@ public class GUI {
         		enterMainMenu();
 
         	}});
-        panel.add(inputPanel);
-        panel.add(errorLabel);
-        panel.add(cancelButton);
-        panel.add(enterButton);
 
         panel.revalidate();
         frame.revalidate();
@@ -435,11 +449,11 @@ public class GUI {
 
     }
 
-    private void takeTestClick() {
+    private void enterTakeTestScreen() {
         panel.removeAll();
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        addHeader("Take Test");
+        addHeader("Select User and Test");
         
         ArrayList<ArrayList<Object>> students = manage.runQuery("select * from student"); 
         
@@ -464,15 +478,13 @@ public class GUI {
         }
         panel.add(testBox);
         
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(0,2));
-        
         JLabel errorLabel = new JLabel("");
         errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(errorLabel);
         
         JButton cancelButton = createButton("Cancel");
         JButton takeButton = createButton("Take");  
+        addCancelButtonPanel(cancelButton, takeButton);
         
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -515,12 +527,6 @@ public class GUI {
             	}
             }});
         
-
-        buttonPanel.add(cancelButton);
-        buttonPanel.add(takeButton);
-        
-        panel.add(buttonPanel);
-        
         panel.revalidate();
         frame.revalidate();
         panel.repaint();
@@ -529,22 +535,22 @@ public class GUI {
     
     private void takeTest(int studentid, int testid) {
     	panel.removeAll();
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         addHeader("Take Test");
         
         ArrayList<ArrayList<Object>> questionids = manage.runQuery("select question1, question2, question3, question4 from test where testid='" + testid + "'");
         
-        List<String> correctAnswers = new ArrayList();
-        List<JComboBox<String>> answerBoxes = new ArrayList();
-        List<String> questionList = new ArrayList();
+        List<String> correctAnswers = new ArrayList<String>();
+        List<JComboBox<String>> answerBoxes = new ArrayList<JComboBox<String>>();
+        List<String> questionList = new ArrayList<String>();
 
         
         for(int i=0;i<questionids.get(0).size();i++) {
         	ArrayList<ArrayList<Object>> questions = manage.runQuery("select * from question where qid='" + questionids.get(0).get(i) + "'");
         	questionList.add(questions.get(0).get(1).toString());            
             
-            List<String> answers = new ArrayList();
+            List<String> answers = new ArrayList<String>();
             
             correctAnswers.add(questions.get(0).get(2).toString());
             answers.add(questions.get(0).get(2).toString());
@@ -570,18 +576,13 @@ public class GUI {
             panel.add(answerBoxes.get(i));
         }
         
-                
-        
-        
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(0,2));
-        
         JLabel errorLabel = new JLabel("");
         errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(errorLabel);
         
         JButton cancelButton = createButton("Cancel");
-        JButton submitButton = createButton("Submit");  
+        JButton submitButton = createButton("Submit");
+        addCancelButtonPanel(cancelButton, submitButton);
         
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -600,13 +601,9 @@ public class GUI {
             	System.out.println(numCorrect);
             	String query = "insert into testlog(numcorrect,studentid,testid) values('" + numCorrect + "','" + studentid + "','" + testid + "')";
         		manage.runUpdateQuery(query);
-        		viewScoresClick();
+        		enterViewScoresScreen();
             }});
-
-        buttonPanel.add(cancelButton);
-        buttonPanel.add(submitButton);
         
-        panel.add(buttonPanel);
         
         panel.revalidate();
         frame.revalidate();
@@ -616,30 +613,32 @@ public class GUI {
     
     
 
-    private void viewScoresClick() {
+    private void enterViewScoresScreen() {
         panel.removeAll();
-        panel.repaint();
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         addHeader("Scores");
 
-        String query = "select * from testlog";
+        String query = "select numcorrect, testid, studentid from testlog";
         ArrayList<ArrayList<Object>> scores = manage.runQuery(query);
         
-        String[] names = new String[]{"logid", "numcorrect", "studentid", "testid"};
-        Object[][] cells = new Object[scores.size()][4];
+        String[] tableNames = new String[]{"Student Name", "Score (out of 4)", "Test ID"};
+        Object[][] tabelCells = new Object[scores.size()][3];
         
         for(int row=0;row<scores.size();row++) {
-        	for(int col=0;col<scores.get(row).size();col++) {
-        		cells[row][col] = scores.get(row).get(col);
+        	tabelCells[row][0] = manage.runQuery("select name from student where studentid =" + scores.get(row).get(2)).get(0).get(0);
+        	for(int col=0;col<scores.get(row).size()-1;col++) {
+        		tabelCells[row][col+1] = scores.get(row).get(col);
         	}
         }
         
-        
-        
-        JTable table = new JTable(cells, names);
+        JTable table = new JTable(tabelCells, tableNames);
         panel.add(new JScrollPane(table));
         
-        addButton("< Back").addActionListener(new ActionListener() {
+        JButton backButton = createButton("< Back");
+        panel.add(backButton);
+
+        backButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	enterMainMenu();
             }
@@ -649,5 +648,4 @@ public class GUI {
         panel.repaint();
         frame.repaint();
     }
-
 }

@@ -8,8 +8,6 @@ import java.util.ArrayList;
 
 import javax.swing.JTable;
 
-import javax.swing.JTable;
-
 public class PostgreManager {
 
     private String databaseConnectionString = "jdbc:postgresql://localhost/testmanager";
@@ -37,13 +35,13 @@ public class PostgreManager {
     public void runUpdateQuery(String query) {
 		try (Statement stmt = conn.createStatement();)
 		{
-	        System.out.println("The SQL statement is: " + query + "\n");
+	        System.out.println("The SQL statement is: " + query);
 
 	        stmt.executeUpdate(query);
 
-	        System.out.println("Success");
+	        System.out.println("Success" + "\n");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Failed" + "\n");
 			e.printStackTrace();
 		}
 	}
@@ -53,7 +51,7 @@ public class PostgreManager {
 
 		try (Statement stmt = conn.createStatement();)
 		{
-	        System.out.println("The SQL statement is: " + query + "\n");
+	        System.out.println("The SQL statement is: " + query);
 	        
 	        ResultSet rset = stmt.executeQuery(query);
 	        
@@ -69,14 +67,14 @@ public class PostgreManager {
 				}
 
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				System.out.println("Failed");
 				e.printStackTrace();
 			}
 
-	        System.out.println("Success");
+	        System.out.println("Success" + "\n");
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Failed" + "\n");
 			e.printStackTrace();
 		}
 
@@ -87,7 +85,7 @@ public class PostgreManager {
     public JTable getResultsTable(String query) {
 		try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);)
 		{
-	        System.out.println("The SQL statement is: " + query + "\n");
+	        System.out.println("The SQL statement is: " + query);
 
 	        ResultSet rs = stmt.executeQuery(query);
 
@@ -110,10 +108,10 @@ public class PostgreManager {
     		JTable table = new JTable(data, columns);
     		table.setFillsViewportHeight(true);
 
-	        System.out.println("Success");
+	        System.out.println("Success" + "\n");
 	        return table;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Failed" + "\n");
 			e.printStackTrace();
 			return null;
 		}
@@ -123,15 +121,15 @@ public class PostgreManager {
     	try (Statement stmt = conn.createStatement();)
 		{
     		String query = "select count(" + columnName + ") from " + tableName;
-	        System.out.println("The SQL statement is: " + query + "\n");
+	        System.out.println("The SQL statement is: " + query);
 
 	        ResultSet rs = stmt.executeQuery(query);
 	        rs.next();
 			int total = Integer.parseInt(rs.getString(1));
-	        System.out.println("Success");
+	        System.out.println("Success" + "\n");
 	        return total;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Failed" + "\n");
 			e.printStackTrace();
 			return 0;
 		}
